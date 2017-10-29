@@ -3,6 +3,8 @@ const exphbs = require("express-handlebars");
 const methodOverride = require("method-override");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const flash = require("connect-flash");
+const session = require("express-session");
 
 const app = express();
 
@@ -39,6 +41,26 @@ app.use(bodyParser.json());
 // methodOverride Middleware
 app.use(methodOverride("_method"));
 
+// Express Session Middleware
+app.use(
+  session({
+    secret: "secret",
+    resave: true,
+    saveUninitialized: true
+  })
+);
+
+// Flash Message Middleware
+app.use(flash());
+
+// Global Variables
+app.use(function(req, res, next) {
+  res.locals.success_msg = req.flash("success_msg");
+  res.locals.error_msg = req.flash("error_msg");
+  res.locals.error = req.flash("error");
+  next();
+});
+
 //////// ROUTES ////////
 app.get("/", (req, res) => {
   res.render("index");
@@ -67,19 +89,10 @@ app.get("/ideas/add", (req, res) => {
   res.render("ideas/add");
 });
 
-// Edit idea form
-app.get("/ideas/edit/:id", (req, res) => {
-  Idea.findOne({
-    // to match _id from DB with id from URL
-    _id: req.params.id
-  }).then(idea => {
-    res.render("ideas/edit", {
-      idea: idea
-    });
-  });
-});
+///////////////// CRUD ////////////////
 
-// Process Form
+//// CREATE ////
+// create form process
 app.post("/ideas", (req, res) => {
   const errors = [];
   if (!req.body.title) {
@@ -101,11 +114,26 @@ app.post("/ideas", (req, res) => {
       details: req.body.details
     };
     new Idea(newUser).save().then(idea => {
+      req.flash("success_msg", "New Idea Added");
       res.redirect("/ideas");
     });
   }
 });
 
+//// READ ////
+app.get("/ideas/edit/:id", (req, res) => {
+  Idea.findOne({
+    // to match _id from DB with id from URL
+    _id: req.params.id
+  }).then(idea => {
+    res.render("ideas/edit", {
+      idea: idea
+    });
+  });
+});
+
+//// UPDATE ////
+// edit form process
 app.put("/ideas/:id", (req, res) => {
   Idea.findOne({
     _id: req.params.id
@@ -114,8 +142,17 @@ app.put("/ideas/:id", (req, res) => {
     idea.title = req.body.title;
     idea.details = req.body.details;
     idea.save().then(idea => {
+      req.flash("success_msg", "Idea Updated");
       res.redirect("/ideas");
     });
+  });
+});
+
+//// DELETE ////
+app.delete("/ideas/:id", (req, res) => {
+  Idea.remove({ _id: req.params.id }).then(() => {
+    req.flash("success_msg", "Idea Deleted");
+    res.redirect("/ideas");
   });
 });
 
