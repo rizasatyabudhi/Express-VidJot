@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 
 const app = express();
 
+///// MONGOOSE CONFIG //////////////
 // Map global promise - get rid of depricated warning
 mongoose.Promise = global.Promise;
 
@@ -24,6 +25,7 @@ mongoose
 require("./models/Idea");
 const Idea = mongoose.model("ideas");
 
+/////// MIDDLEWARES //////
 // Handlebars Middleware
 app.engine("handlebars", exphbs({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
@@ -33,15 +35,30 @@ app.set("view engine", "handlebars");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-// Routes
+//////// ROUTES ////////
 app.get("/", (req, res) => {
   res.render("index");
 });
 
+// Ideas index page
+app.get("/ideas", (req, res) => {
+  // res.render("ideas");
+  Idea.find({})
+    .sort({ date: "desc" })
+    .then(ideas => {
+      // this is so our view can access "ideas"
+      res.render("ideas/index", {
+        ideas: ideas
+      });
+    });
+});
+
+// about page
 app.get("/about", (req, res) => {
   res.render("about");
 });
 
+// Add idea form
 app.get("/ideas/add", (req, res) => {
   res.render("ideas/add");
 });
@@ -63,7 +80,13 @@ app.post("/ideas", (req, res) => {
       details: req.body.details
     });
   } else {
-    res.send("Passed");
+    const newUser = {
+      title: req.body.title,
+      details: req.body.details
+    };
+    new Idea(newUser).save().then(idea => {
+      res.redirect("/ideas");
+    });
   }
 });
 
