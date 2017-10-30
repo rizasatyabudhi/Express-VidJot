@@ -28,23 +28,13 @@ router.post('/register',(req,res)=>{
       // it will use the previous value
       errors:errors,
       name:req.body.name,
+      email:req.body.email,
       password:req.body.password,
       password2:req.body.password2
     })
   } else {
-    res.send('Pass')
+    res.send('passed')
   }
-  // const newUser = {
-  //   name:req.body.title,
-  //   email:req.body.email,
-  //   password:req.body.password
-  // }
-  // new User(newUser).save().then(user=>{
-  //   req.flash("success_msg","Register Success")
-  //   res.redirect('/')
-  // })
-  console.log(req.body)
-  res.send('register')
 })
 
 module.exports = router
