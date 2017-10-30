@@ -35,6 +35,15 @@ router.post('/register',(req,res)=>{
   } else {
     res.send('passed')
   }
+    // const newUser = {
+  //   name:req.body.title,
+  //   email:req.body.email,
+  //   password:req.body.password
+  // }
+  // new User(newUser).save().then(user=>{
+  //   req.flash("success_msg","Register Success")
+  //   res.redirect('/')
+  // })
 })
 
 module.exports = router
