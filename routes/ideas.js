@@ -6,6 +6,9 @@ const mongoose = require("mongoose");
 require("../models/Idea");
 const Idea = mongoose.model("ideas");
 
+// We don't need /ideas anymore in the router.get/post
+// but we still need /ideas in the res.render
+
 // Ideas index page
 router.get("/", (req, res) => {
   // res.render("ideas");
@@ -39,7 +42,7 @@ router.post("/", (req, res) => {
   }
 
   if (errors.length > 0) {
-    res.render("/add", {
+    res.render("ideas/add", {
       errors: errors,
       title: req.body.title,
       details: req.body.details
@@ -62,7 +65,7 @@ router.get("/edit/:id", (req, res) => {
     // to match _id from DB with id from URL
     _id: req.params.id
   }).then(idea => {
-    res.render("/edit", {
+    res.render("ideas/edit", {
       idea: idea
     });
   });

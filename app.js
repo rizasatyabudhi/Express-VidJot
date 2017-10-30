@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const flash = require("connect-flash");
 const session = require("express-session");
+const path = require('path')
 
 const app = express();
 
@@ -36,6 +37,10 @@ app.set("view engine", "handlebars");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+// static folder
+// sets the "public" folder as the static folder
+app.use(express.static(path.join(__dirname,'public')))
+
 // methodOverride Middleware
 app.use(methodOverride("_method"));
 
@@ -61,9 +66,10 @@ app.use(function(req, res, next) {
 
 // Load Routes
 const ideas = require('./routes/ideas')
-// wires up ideas route
-// everything
 app.use('/ideas',ideas);
+
+const users = require('./routes/users');
+app.use('/users',users);
 
 //////// ROUTES ////////
 app.get("/", (req, res) => {
@@ -74,14 +80,6 @@ app.get("/", (req, res) => {
 app.get("/about", (req, res) => {
   res.render("about");
 });
-
-app.get('/users/login',(req,res)=>{
-  res.send('Login')
-})
-
-app.get('/users/register',(req,res)=>{
-  res.send('Register')
-})
 
 const port = 5000;
 app.listen(port, () => {
